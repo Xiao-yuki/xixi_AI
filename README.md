@@ -1,1 +1,3 @@
-xixi_AI
+xixi_AI project
+基於oobabooga的text-generation-webui
+新增模組以及修改於有代碼
