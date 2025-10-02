@@ -8,4 +8,4 @@ xixi_AI project
     lang(待辦)
 借物表:
     UI介面:text-generation-webui, by oobabooga, link https://github.com/oobabooga/text-generation-webui
-    AI模型:Breeze-7B-Instruct-v0_1-Q4_K_M.gguf, by MediaTek, https://huggingface.co/tensorblock/Breeze-7B-Instruct-v0_1-GGUF
+    語言模型:Breeze-7B-Instruct-v0_1-Q4_K_M.gguf, by MediaTek, https://huggingface.co/tensorblock/Breeze-7B-Instruct-v0_1-GGUF
