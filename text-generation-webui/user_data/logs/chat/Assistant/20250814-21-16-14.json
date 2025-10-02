@@ -1,0 +1,19 @@
+{
+    "internal": [
+        [
+            "<|BEGIN-VISIBLE-CHAT|>",
+            "How can I help you today?"
+        ]
+    ],
+    "visible": [
+        [
+            "",
+            "How can I help you today?"
+        ]
+    ],
+    "metadata": {
+        "assistant_0": {
+            "timestamp": "Aug 14, 2025 21:16"
+        }
+    }
+}
