@@ -1,31 +1,50 @@
-/css
+# 資料夾忽略
 /installer_files
 /repositories
 
+# 系統與工具檔案
 .chroma
 .DS_Store
-.eslintrc.js
 .idea
+.vscode
+.vs
+Thumbs.db
+
+# 開發工具設定
+.eslintrc.js
 .installer_state.json
-.venv
-venv
 .envrc
 .direnv
-.vs
-.vscode
+
+# Python / Jupyter
+.venv
+venv
+__pycache__/
+*pycache*
+*.log
 *.bak
 *.ipynb
-*.log
-*pycache*
+
+# 憑證與 API 金鑰
+.env
+.envrc
 cert.pem
 key.pem
-package.json
-package-lock.json
-Thumbs.db
-wandb
 
-# ignore user docker config and top level links to docker files
+# 模型與重量級檔案
+*.gguf
+*.ggml
+*.ckpt
+*.safetensors
+*.pt
+*.bin
+models/
+text-generation-webui/user_data/models/
+
+# Docker 設定檔
 /docker-compose.yaml
 /docker-compose.yml
 /Dockerfile
-.env
+
+# 追蹤 wandb 日誌目錄
+wandb/
