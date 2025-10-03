@@ -17,15 +17,15 @@ while True:
         keywords = input("輸入關鍵字（以逗號分隔）：").split(",")
         preference = float(input("喜好程度（-1 到 1）："))
         memsys.add_memory(content, [k.strip() for k in keywords], preference)
-        print("✅ 已新增記憶。")
+        print("已新增記憶。")
 
     elif choice == "2":
         q = input("輸入搜尋關鍵字：").split(",")
         results = memsys.search_memory([k.strip() for k in q])
         if not results:
-            print("❌ 沒有找到相關記憶。")
+            print("沒有找到相關記憶。")
         else:
-            print("🔍 搜尋結果：")
+            print("搜尋結果：")
             for i, m in enumerate(results):
                 print(f"{i+1}. {m['content']} (freq={m['frequency']:.2f}, pref={m['preference']:.2f}, last_used={m['last_used']})")
 
@@ -34,13 +34,13 @@ while True:
         mid = input("輸入要使用的記憶 ID：").strip()
         result = memsys.use_memory(mid)
         if result:
-            print("✅ 已使用記憶並更新。")
+            print("已使用記憶並更新。")
         else:
-            print("❌ 沒有找到這個 ID。")
+            print("沒有找到這個 ID。")
 
     elif choice == "4":
         memsys.decay_memory()
-        print("🧹 已執行衰退與清理。")
+        print("已執行衰退與清理。")
 
     elif choice == "5":
         memsys.print_memory()

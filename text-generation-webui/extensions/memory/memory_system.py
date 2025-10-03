@@ -50,7 +50,7 @@ class MemorySystem:
             if match_score > 0:
                 last_used_dt = datetime.fromisoformat(mem['last_used'])
                 days_ago = (now - last_used_dt).days
-                recency_weight = 1 / (1 + days_ago)  # 越近越高，避免除0用1+
+                recency_weight = 1 / (1 + days_ago)  # 越近越高，用+1避免除0
 
                 score = mem['frequency'] * (1 + mem['preference']) * recency_weight
                 results.append((score, mem))
@@ -97,7 +97,7 @@ class MemorySystem:
     def print_memory(self):
         for mem in self.memories:
             print(f"[{mem['type'].upper()}] {mem['content']}")
-            print(f"  ➤ Keywords: {mem['keywords']}")
-            print(f"  ➤ Frequency: {mem['frequency']:.2f}, Preference: {mem['preference']}")
-            print(f"  ➤ Last used: {mem['last_used']}")
+            print(f"Keywords: {mem['keywords']}")
+            print(f"Frequency: {mem['frequency']:.2f}, Preference: {mem['preference']}")
+            print(f"Last used: {mem['last_used']}")
             print("")
