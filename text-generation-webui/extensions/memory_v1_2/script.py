@@ -15,7 +15,11 @@ params = {
 }
 
 def output_modifier(string, state, is_chat=False):
-    """
-    關鍵字提取 搜尋記憶 組織回覆
-    """
+    ori_str = string
+    #關鍵字提取
+    key_word = k_search(string)
+    #搜尋記憶
+    mem_str = memsys(key_word)
+    #組織回覆
+    string = ori_str + mem_str
     return string
