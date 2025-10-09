@@ -10,7 +10,7 @@ from modules.text_generation import (
 )
 
 params = {
-    "display_name": "memory_mod_v1",
+    "display_name": "memory_mod_v1_1",
     "is_tab": False,
 }
 
