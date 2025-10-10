@@ -35,6 +35,6 @@ def chat_input_modifier(text, visible_text, state):
     time_notice = f"[系統提示：時間資訊] {now_1} {now_2} {now_3}"
 
     modified_text = f"{user_name} {text}\n{time_notice}"
-    modified_visible = f"{user_name} {visible_text}\n{time_notice}"
+    modified_visible = f"{user_name} {visible_text}\n{time_notice}"#測試用
 
     return modified_text, modified_visible

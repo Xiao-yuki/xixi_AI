@@ -9,17 +9,25 @@ from modules.text_generation import (
     generate_reply,
 )
 
+from keyword_search import keyword_search_system
+kwss = keyword_search_system()
+from mem_sys import memory_using_system
+mus = memory_using_system()
+
 params = {
     "display_name": "memory_mod_v1_2",
     "is_tab": False,
 }
 
-def output_modifier(string, state, is_chat=False):
-    ori_str = string
+def chat_input_modifier(text, visible_text, state):
     #關鍵字提取
-    key_word = k_search(string)
-    #搜尋記憶
-    mem_str = memsys(key_word)
-    #組織回覆
-    string = ori_str + mem_str
-    return string
+    key_word = kwss.keyword_search(text)
+    if key_word == "none":#如果不需要記憶就直接跳出
+        return text, visible_text
+    else:
+        #搜尋記憶
+        mem_str = mus.search_memory(key_word)
+        #組織回覆
+        m_text = f"{text}\n[系統提示：相關記憶] {mem_str}"
+        m_visible_text = m_text#測試用
+        return m_text, m_visible_text
