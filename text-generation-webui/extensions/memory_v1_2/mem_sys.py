@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import List, Dict
 import os
 
@@ -18,6 +18,11 @@ class memory_using_system:
                 self.memories = json.load(f)
         except FileNotFoundError:
             self.memories = []
+    
+    def id():
+        num = datetime.now().strftime("%Y"+"%m"+"%d"+"%H"+"%M"+"%S")
+        num = int(num)
+        return num
 
     def search_memory(key_word):
         return memory_string
