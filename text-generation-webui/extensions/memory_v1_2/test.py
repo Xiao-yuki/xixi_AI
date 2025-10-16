@@ -20,7 +20,7 @@ class BiRNN:
         self.b_f = np.zeros((1, hidden_dim))
         #backward
         self.Wx_b = np.random.randn(input_dim, hidden_dim) * 0.01
-        self.Wh_f = np.random.randn(hidden_dim, hidden_dim) & 0.01
+        self.Wh_f = np.random.randn(hidden_dim, hidden_dim) * 0.01
         self.b_b = np.zeros((1, hidden_dim))
 
     def step(self, x, h_prev, Wx, Wh, b):
@@ -56,5 +56,22 @@ def binary_cross_entropy(preds, targets):
     preds = np.clip(preds, eps, 1 - eps)
     return -np.mean(targets * np.log(preds) + (1 - targets) * np.log(1 - preds))
 
-def extract_keywor(tokens , scores, threshold=0.5):
+def extract_keywords(tokens , scores, threshold=0.5):
     return [tok for tok, s in zip(tokens, scores) if s > threshold]
+
+#test
+embed = Embedding(vocab_size=100, embed_dim=16)
+encoder = BiRNN(input_dim=16, hidden_dim=32)
+clf = Classifier(input_dim=64)
+
+tokens = ["吃", "壽", "司"]
+indices = [token2idx[t] for t in tokens]
+labels = np.array([[1], [1], [1]])
+
+x_embed = embed.forward(indices)
+h_seq = encoder.forward(x_embed)
+preds = clf.forward(h_seq)
+
+loss = binary_cross_entropy(preds, labels)
+
+print("關鍵字：", extract_keywords(tokens, preds.ravel()))
