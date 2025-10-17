@@ -20,7 +20,7 @@ class BiRNN:
         self.b_f = np.zeros((1, hidden_dim))
         #backward
         self.Wx_b = np.random.randn(input_dim, hidden_dim) * 0.01
-        self.Wh_f = np.random.randn(hidden_dim, hidden_dim) * 0.01
+        self.Wh_b = np.random.randn(hidden_dim, hidden_dim) * 0.01
         self.b_b = np.zeros((1, hidden_dim))
 
     def step(self, x, h_prev, Wx, Wh, b):
@@ -38,7 +38,7 @@ class BiRNN:
         #backward
         h_prev = np.zeros((1, self.hidden_dim))
         for t in reversed(range(T)):
-            h_prev = self.step(x_seq[t:t+1], h_prev, self.Wx_b, self.Wx_b, self.b_b)
+            h_prev = self.step(x_seq[t:t+1], h_prev, self.Wx_b, self.Wh_b, self.b_b)
 
         return np.concatenate([h_f, h_b], axis=1)
     
@@ -48,7 +48,7 @@ class Classifier:
         self.b = 0.0
 
     def forward(self, h_seq):
-        z = h_seq @self.W + self.b
+        z = h_seq @ self.W + self.b
         return 1 / (1 + np.exp(-z))
     
 def binary_cross_entropy(preds, targets):
@@ -74,4 +74,6 @@ preds = clf.forward(h_seq)
 
 loss = binary_cross_entropy(preds, labels)
 
+print("預測分數：", preds.ravel())
+print("Loss：", loss)
 print("關鍵字：", extract_keywords(tokens, preds.ravel()))
