@@ -43,13 +43,28 @@ class BiRNN:
         return np.concatenate([h_f, h_b], axis=1)
     
 class Classifier:
-    def __init__(self, input_dim):
+    def __init__(self, input_dim, lr=0.1):
         self.W = np.random.randn(input_dim, 1) * 0.01
         self.b = 0.0
+        self.lr = lr
 
     def forward(self, h_seq):
+        self.h_seq = h_seq
         z = h_seq @ self.W + self.b
-        return 1 / (1 + np.exp(-z))
+        self.preds = 1 / (1 + np.exp(-z))
+        return self.preds
+    
+    def backward(self, labels):
+        dz = self.preds - labels
+        dw = self.h_seq.T @ dz
+        db = np.sum(dz)
+
+        dh = dz @ self.W.T
+
+        self.W -= self.lr * dw
+        self.b -= self.lr * db
+
+        return dh
     
 def binary_cross_entropy(preds, targets):
     eps = 1e-7
@@ -68,12 +83,17 @@ tokens = ["吃", "壽", "司"]
 indices = [token2idx[t] for t in tokens]
 labels = np.array([[1], [1], [1]])
 
-x_embed = embed.forward(indices)
-h_seq = encoder.forward(x_embed)
-preds = clf.forward(h_seq)
+for epoch in range(100):
+    x_embed = embed.forward(indices)
+    h_seq = encoder.forward(x_embed)
+    preds = clf.forward(h_seq)
 
-loss = binary_cross_entropy(preds, labels)
+    loss = binary_cross_entropy(preds, labels)
 
-print("預測分數：", preds.ravel())
-print("Loss：", loss)
-print("關鍵字：", extract_keywords(tokens, preds.ravel()))
+    grad_trom_clf = clf.backward(labels)
+
+    print(f"Epoch {epoch+1}: Loss = {loss:.4f}, preds = {preds.ravel()}")
+
+#print("預測分數：", preds.ravel())
+#print("Loss：", loss)
+#print("關鍵字：", extract_keywords(tokens, preds.ravel()))
