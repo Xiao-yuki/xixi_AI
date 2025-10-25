@@ -1,6 +1,12 @@
 import numpy as np
+import json
+import os
 
-token2idx = {"明": 0, "天": 1, "吃": 2, "壽": 3, "司": 4}
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TEST_FILE = os.path.join(BASE_DIR, 'test.json')
+
+with open(TEST_FILE, "r", encoding="utf-8") as f:
+    token2idx = json.load(f)
 tokens = ["明", "天", "吃", "壽", "司"]
 indices = [token2idx[t] for t in tokens]
 
@@ -83,7 +89,7 @@ tokens = ["吃", "壽", "司"]
 indices = [token2idx[t] for t in tokens]
 labels = np.array([[1], [1], [1]])
 
-for epoch in range(100):
+for epoch in range(10):
     x_embed = embed.forward(indices)
     h_seq = encoder.forward(x_embed)
     preds = clf.forward(h_seq)
@@ -94,6 +100,6 @@ for epoch in range(100):
 
     print(f"Epoch {epoch+1}: Loss = {loss:.4f}, preds = {preds.ravel()}")
 
-#print("預測分數：", preds.ravel())
-#print("Loss：", loss)
-#print("關鍵字：", extract_keywords(tokens, preds.ravel()))
+print("預測分數：", preds.ravel())
+print("Loss：", loss)
+print("關鍵字：", extract_keywords(tokens, preds.ravel()))
