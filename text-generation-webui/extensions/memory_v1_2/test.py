@@ -3,7 +3,7 @@ import json
 import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-TEST_FILE = os.path.join(BASE_DIR, 'test.json')
+TEST_FILE = os.path.join(BASE_DIR, 'words.json')
 
 with open(TEST_FILE, "r", encoding="utf-8") as f:
     token2idx = json.load(f)
@@ -81,7 +81,7 @@ def extract_keywords(tokens , scores, threshold=0.5):
     return [tok for tok, s in zip(tokens, scores) if s > threshold]
 
 #test
-embed = Embedding(vocab_size=100, embed_dim=16)
+embed = Embedding(vocab_size=5000, embed_dim=16)
 encoder = BiRNN(input_dim=16, hidden_dim=32)
 clf = Classifier(input_dim=64)
 
