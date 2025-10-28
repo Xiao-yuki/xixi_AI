@@ -18,8 +18,9 @@ class Embedding:
         return self.W[indices]
     
 class BiRNN:
-    def __init__(self, input_dim, hidden_dim):
+    def __init__(self, input_dim, hidden_dim, lr=0.01):
         self.hidden_dim = hidden_dim
+        self.lr = lr
         #forward
         self.Wx_f = np.random.randn(input_dim, hidden_dim) * 0.01
         self.Wh_f = np.random.randn(hidden_dim, hidden_dim) * 0.01
@@ -49,8 +50,25 @@ class BiRNN:
 
         return np.concatenate([h_f, h_b], axis=1)
     
+    def backward(self, x_seq, grad_output):
+        T = len(x_seq)
+        grad_f = grad_output[:, :self.Wh_f.shape[0]]
+        grad_b = grad_output[:, :self.Wh_b.shape[0]:]
+        #forward
+        for t in range(T):
+            x = x_seq[t:t+1]
+            dh = grad_f[t:t+1]
+            self.Wx_f = self.Wx_f - self.lr * (x.T @ dh)
+            self.b_f = self.b_f - self.lr * dh
+        #backward
+        for t in range(T):
+            x = x_seq[t:t+1]
+            dh = grad_b[t:t+1]
+            self.Wx_b = self.Wx_b - self.lr * (x.T @ dh)
+            self.b_b = self.b_b - self.lr * dh
+    
 class Classifier:
-    def __init__(self, input_dim, lr=0.1):
+    def __init__(self, input_dim, lr=0.01):
         self.W = np.random.randn(input_dim, 1) * 0.01
         self.b = 0.0
         self.lr = lr
@@ -83,7 +101,7 @@ def extract_keywords(tokens , scores, threshold=0.5):
 
 #test
 embed = Embedding(vocab_size=5000, embed_dim=16)
-encoder = BiRNN(input_dim=16, hidden_dim=32)
+encoder = BiRNN(input_dim=16, hidden_dim=32, lr=0.01)
 clf = Classifier(input_dim=64)
 
 tokens = ["明", "天", "吃", "壽", "司"]
@@ -98,6 +116,7 @@ for epoch in range(100):
     loss = binary_cross_entropy(preds, labels)
 
     grad_trom_clf = clf.backward(labels)
+    encoder.backward(x_embed, grad_trom_clf)
 
     print(f"Epoch {epoch+1}: Loss = {loss:.4f}, preds = {preds.ravel()}")
 
