@@ -45,6 +45,7 @@ class BiRNN:
         h_prev = np.zeros((1, self.hidden_dim))
         for t in reversed(range(T)):
             h_prev = self.step(x_seq[t:t+1], h_prev, self.Wx_b, self.Wh_b, self.b_b)
+            h_b[t] = h_prev
 
         return np.concatenate([h_f, h_b], axis=1)
     
@@ -85,11 +86,11 @@ embed = Embedding(vocab_size=5000, embed_dim=16)
 encoder = BiRNN(input_dim=16, hidden_dim=32)
 clf = Classifier(input_dim=64)
 
-tokens = ["吃", "壽", "司"]
+tokens = ["明", "天", "吃", "壽", "司"]
 indices = [token2idx[t] for t in tokens]
-labels = np.array([[1], [1], [1]])
+labels = np.array([[0], [0], [1], [1], [1]])
 
-for epoch in range(10):
+for epoch in range(100):
     x_embed = embed.forward(indices)
     h_seq = encoder.forward(x_embed)
     preds = clf.forward(h_seq)
