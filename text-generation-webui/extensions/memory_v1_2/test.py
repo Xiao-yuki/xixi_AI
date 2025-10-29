@@ -11,14 +11,21 @@ tokens = ["明", "天", "吃", "壽", "司"]
 indices = [token2idx[t] for t in tokens]
 
 class Embedding:
-    def __init__(self, vocab_size, embed_dim):
+    def __init__(self, vocab_size, embed_dim, lr=0.001):
         self.W = np.random.randn(vocab_size, embed_dim) * 0.01
+        self.lr = lr
+        self.last_indices = None
     
     def forward(self, indices):
+        self.last_indices = indices
         return self.W[indices]
     
+    def backward(self,grad_output):
+        for i, idx in enumerate(self.last_indices):
+            self.W[idx] = self.W[idx] - self.lr * grad_output[i]
+    
 class BiRNN:
-    def __init__(self, input_dim, hidden_dim, lr=0.01):
+    def __init__(self, input_dim, hidden_dim, lr=0.001):
         self.hidden_dim = hidden_dim
         self.lr = lr
         #forward
@@ -52,23 +59,28 @@ class BiRNN:
     
     def backward(self, x_seq, grad_output):
         T = len(x_seq)
-        grad_f = grad_output[:, :self.Wh_f.shape[0]]
-        grad_b = grad_output[:, :self.Wh_b.shape[0]:]
+        grad_f = grad_output[:, :self.hidden_dim]
+        grad_b = grad_output[:, self.hidden_dim:]
+        grad_input = np.zeros_like(x_seq)
         #forward
         for t in range(T):
             x = x_seq[t:t+1]
             dh = grad_f[t:t+1]
             self.Wx_f = self.Wx_f - self.lr * (x.T @ dh)
             self.b_f = self.b_f - self.lr * dh
+            grad_input[t:t+1] = grad_input[t:t+1] + dh @ self.Wx_f.T
         #backward
         for t in range(T):
             x = x_seq[t:t+1]
             dh = grad_b[t:t+1]
             self.Wx_b = self.Wx_b - self.lr * (x.T @ dh)
             self.b_b = self.b_b - self.lr * dh
+            grad_input[t:t+1] = grad_input[t:t+1] + dh @ self.Wx_b.T
+
+        return grad_input
     
 class Classifier:
-    def __init__(self, input_dim, lr=0.01):
+    def __init__(self, input_dim, lr=0.001):
         self.W = np.random.randn(input_dim, 1) * 0.01
         self.b = 0.0
         self.lr = lr
@@ -101,14 +113,14 @@ def extract_keywords(tokens , scores, threshold=0.5):
 
 #test
 embed = Embedding(vocab_size=5000, embed_dim=16)
-encoder = BiRNN(input_dim=16, hidden_dim=32, lr=0.01)
+encoder = BiRNN(input_dim=16, hidden_dim=32, lr=0.001)
 clf = Classifier(input_dim=64)
 
 tokens = ["明", "天", "吃", "壽", "司"]
 indices = [token2idx[t] for t in tokens]
 labels = np.array([[0], [0], [1], [1], [1]])
 
-for epoch in range(100):
+for epoch in range(30000):
     x_embed = embed.forward(indices)
     h_seq = encoder.forward(x_embed)
     preds = clf.forward(h_seq)
@@ -116,7 +128,8 @@ for epoch in range(100):
     loss = binary_cross_entropy(preds, labels)
 
     grad_trom_clf = clf.backward(labels)
-    encoder.backward(x_embed, grad_trom_clf)
+    grad_to_rnn = encoder.backward(x_embed, grad_trom_clf)
+    embed.backward(grad_to_rnn)
 
     print(f"Epoch {epoch+1}: Loss = {loss:.4f}, preds = {preds.ravel()}")
 
