@@ -111,34 +111,46 @@ def binary_cross_entropy(preds, targets):
 def extract_keywords(tokens , scores, threshold=0.5):
     return [tok for tok, s in zip(tokens, scores) if s > threshold]
 
-def tokenize_char(sentence):
-    return list(sentence)
+def tolenize_and_label(sentence, keywords, token2idx):
+    tokens = list(sentence)
+    indices = [token2idx[t] for t in tokens]
+    labels = np.array([[1 if t in keywords else 0] for t in tokens])
+    return tokens, indices, labels
 
 #test
 embed = Embedding(vocab_size=5000, embed_dim=16)
 encoder = BiRNN(input_dim=16, hidden_dim=32, lr=0.001)
 clf = Classifier(input_dim=64)
 
-tokens = tokenize_char("明天吃壽司")
-indices = [token2idx[t] for t in tokens]
-labels = np.array([[0], [0], [1], [1], [1]])
+#TRAINING_DATA = os.path.join(BASE_DIR, 'training_data.json')
+#with open(TRAINING_DATA, "r", encoding="utf-8") as d:
+#    training_data = json.load(d)
 
-for epoch in range(30000):
-    x_embed = embed.forward(indices)
-    h_seq = encoder.forward(x_embed)
-    preds = clf.forward(h_seq)
+training_data = [
+    ("我明天想吃壽司", ["吃", "壽司"]),
+    ("明天要去打籃球", ["籃球"]),
+    ("貓咪在沙發上睡覺", ["貓咪", "睡覺"]),
+]
 
-    loss = binary_cross_entropy(preds, labels)
+for sentence, keywords in training_data:
+    tokens, indices, labels = tolenize_and_label(sentence, keywords, token2idx)
 
-    grad_trom_clf = clf.backward(labels)
-    grad_to_rnn = encoder.backward(x_embed, grad_trom_clf)
-    embed.backward(grad_to_rnn)
+    for epoch in range(30000):
+        x_embed = embed.forward(indices)
+        h_seq = encoder.forward(x_embed)
+        preds = clf.forward(h_seq)
 
-    #print(f"Epoch {epoch+1}: Loss = {loss:.4f}, preds = {preds.ravel()}")
+        loss = binary_cross_entropy(preds, labels)
 
-    if loss < 0.3:
-        break
+        grad_trom_clf = clf.backward(labels)
+        grad_to_rnn = encoder.backward(x_embed, grad_trom_clf)
+        embed.backward(grad_to_rnn)
 
-print("預測分數：", preds.ravel())
-print("Loss：", loss)
-print("關鍵字：", extract_keywords(tokens, preds.ravel()))
+        print(f"Epoch {epoch+1}: Loss = {loss:.4f}, preds = {preds.ravel()}")
+
+        if loss < 0.3:
+            break
+
+    print("預測分數：", preds.ravel())
+    print("Loss：", loss)
+    print("關鍵字：", extract_keywords(tokens, preds.ravel()))
