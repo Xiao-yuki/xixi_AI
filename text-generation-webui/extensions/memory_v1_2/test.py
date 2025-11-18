@@ -7,8 +7,8 @@ TEST_FILE = os.path.join(BASE_DIR, 'words.json')
 
 with open(TEST_FILE, "r", encoding="utf-8") as f:
     token2idx = json.load(f)
-tokens = ["明", "天", "吃", "壽", "司"]
-indices = [token2idx[t] for t in tokens]
+#tokens = ["明", "天", "吃", "壽", "司"]
+#indices = [token2idx[t] for t in tokens]
 
 class Embedding:
     def __init__(self, vocab_size, embed_dim, lr=0.001):
@@ -111,12 +111,15 @@ def binary_cross_entropy(preds, targets):
 def extract_keywords(tokens , scores, threshold=0.5):
     return [tok for tok, s in zip(tokens, scores) if s > threshold]
 
+def tokenize_char(sentence):
+    return list(sentence)
+
 #test
 embed = Embedding(vocab_size=5000, embed_dim=16)
 encoder = BiRNN(input_dim=16, hidden_dim=32, lr=0.001)
 clf = Classifier(input_dim=64)
 
-tokens = ["明", "天", "吃", "壽", "司"]
+tokens = tokenize_char("明天吃壽司")
 indices = [token2idx[t] for t in tokens]
 labels = np.array([[0], [0], [1], [1], [1]])
 
@@ -131,7 +134,10 @@ for epoch in range(30000):
     grad_to_rnn = encoder.backward(x_embed, grad_trom_clf)
     embed.backward(grad_to_rnn)
 
-    print(f"Epoch {epoch+1}: Loss = {loss:.4f}, preds = {preds.ravel()}")
+    #print(f"Epoch {epoch+1}: Loss = {loss:.4f}, preds = {preds.ravel()}")
+
+    if loss < 0.3:
+        break
 
 print("預測分數：", preds.ravel())
 print("Loss：", loss)
